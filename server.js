@@ -1,18 +1,25 @@
 const express = require("express");
+const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 5002;
 
 app.use(express.json());
+app.use(
+  cors({
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  })
+);
 
 app.get("/", (req, res) => {
   res.status(200).json({ success: true, message: "Server is running." });
 });
 
-app.post("/fb-track", (req, res) => {
+app.get("/fb-track", (req, res) => {
   try {
-    console.log(req.body);
+    console.log({ ...req.query });
 
     res.status(200).json({ success: true, message: "Tracking success." });
   } catch (error) {
