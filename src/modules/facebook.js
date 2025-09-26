@@ -1,13 +1,13 @@
 const axios = require("axios");
 require("dotenv").config();
 
-const fbCapiBaseUrl = `https://graph.facebook.com/v20.0/${process.env.FB_PIXEL_ID}/events?access_token=${process.env.FB_PIXEL_ACCESS_TOKEN}`;
+const fbCApiBaseUrl = `https://graph.facebook.com/v20.0/${process.env.FB_PIXEL_ID}/events?access_token=${process.env.FB_PIXEL_ACCESS_TOKEN}`;
 
 const facebookEventHandler = async (req, res) => {
   try {
     const referer = req.get("referer");
-    const eventTestCode = process.env.FB_EVENT_TEST_CODE;
-    const url = fbCapiBaseUrl;
+    const eventTestCode = process.env.FB_EVENT_TEST_CODE || undefined;
+    const url = fbCApiBaseUrl;
     const xForwardedFor = req.headers["x-forwarded-for"];
     const clientIp = Array.isArray(xForwardedFor)
       ? xForwardedFor[0]
@@ -15,7 +15,7 @@ const facebookEventHandler = async (req, res) => {
 
     // ✅ Extract User-Agent
     const userAgent = req.headers["user-agent"];
-
+    const { fbp, fbc } = req.query;
     const body = {
       data: [
         {
@@ -34,8 +34,8 @@ const facebookEventHandler = async (req, res) => {
             //   "254aa248acb47dd654ca3ea53f48c2c26d641d23d7e2e93a1ec56258df7674c4",
             //   "6f4fcb9deaeadc8f9746ae76d97ce1239e98b404efe5da3ee0b7149740f89ad6",
             // ],
-            fbc: req.cookies._fbc || null,
-            fbp: req.cookies._fbp || null,
+            fbc,
+            fbp,
           },
           //   custom_data: {
           //     value: 100.2,
@@ -46,11 +46,8 @@ const facebookEventHandler = async (req, res) => {
           opt_out: false,
         },
       ],
+      test_event_code: eventTestCode,
     };
-
-    if (eventTestCode) {
-      body.test_event_code = eventTestCode;
-    }
 
     const fbResponse = await axios.post(url, body, {
       headers: { "Content-Type": "application/json" },
