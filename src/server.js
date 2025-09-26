@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const { facebookEventHandler } = require("./modules/facebook");
 require("dotenv").config();
 
 const app = express();
@@ -12,20 +14,14 @@ app.use(
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   })
 );
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
   res.status(200).json({ success: true, message: "Server is running." });
 });
 
-app.get("/fb-track", (req, res) => {
-  try {
-    console.log({ ...req.query });
-
-    res.status(200).json({ success: true, message: "Tracking success." });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Failed to track." });
-  }
-});
+// Facebook
+app.get("/fb/:eventName/:eventId", facebookEventHandler);
 
 app.listen(PORT, () => {
   console.log(`Tracking server is running successfully on port ${PORT}`);
