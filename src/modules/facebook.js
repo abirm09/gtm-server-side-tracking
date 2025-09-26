@@ -22,6 +22,7 @@ const facebookEventHandler = async (req, res) => {
           event_name: req.params.eventName,
           event_time: Math.floor(Date.now() / 1000),
           event_id: req.params.eventId,
+          event_source_url: referer || null,
           action_source: "website",
           user_data: {
             client_ip_address: clientIp,
@@ -47,8 +48,8 @@ const facebookEventHandler = async (req, res) => {
       ],
     };
 
-    if (process.env.FB_EVENT_TEST_CODE) {
-      body.test_event_code = process.env.FB_EVENT_TEST_CODE;
+    if (eventTestCode) {
+      body.test_event_code = eventTestCode;
     }
 
     const fbResponse = await axios.post(url, body, {
